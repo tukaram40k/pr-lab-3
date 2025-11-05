@@ -13,7 +13,7 @@ class Board
   def initialize(rows, columns, cards)
     @rows = rows
     @columns = columns
-    @cards = cards.map { |row| row.dup.freeze }.freeze
+    @cards = cards
     check_rep
   end
 
@@ -24,7 +24,13 @@ class Board
     @cards.each do |row|
       raise 'cards dont match columns' unless row.length == @columns
       row.each do |card|
-        raise 'card must be nonempty string' unless card.is_a?(String) && !card.empty? && card !~ /\s/
+        raise 'card must be hash' unless card.is_a?(Hash)
+        raise 'missing :value' unless card.key?(:value)
+        raise 'card value must be nonempty string' unless card[:value].is_a?(String) && !card[:value].empty? && card[:value] !~ /\s/
+        raise 'missing :state' unless card.key?(:state)
+        raise 'invalid :state' unless card[:state] == 'down'
+        raise 'missing :owner' unless card.key?(:owner)
+        raise 'invalid :owner' unless card[:owner].nil?
       end
     end
   end
@@ -52,18 +58,28 @@ class Board
     columns = Regexp.last_match(2).to_i
     raise "wrong card number in txt" unless lines.length == rows * columns
 
-    cards = lines.each_slice(columns).map { |slice| slice.map(&:dup) }
+    cards = lines.each_slice(columns).map do |slice|
+      slice.map { |v| { value: v.dup, state: 'down', owner: nil } }
+    end
 
     Board.new(rows, columns, cards)
+  end
+
+  def look(player_id)
+
+  end
+
+  def flip(player_id, row, column)
+
   end
 
   # cast board to string
   def to_s
     output = +"#{@rows}x#{@columns}\n"
-    @cards.each { |row| output << row.join(' ') << "\n" }
+    @cards.each { |row| output << row.map { |c| c[:value] }.join(' ') << "\n" }
     output
   end
 end
 
-# b = Board.parse_from_file(File.expand_path('../boards/ab.txt', File.dirname(__FILE__)))
-# puts b
+b = Board.parse_from_file(File.expand_path('../boards/zoom.txt', File.dirname(__FILE__)))
+puts b
