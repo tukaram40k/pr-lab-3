@@ -3,3 +3,8 @@
 source "https://rubygems.org"
 
 # gem "rails"
+
+gem "sinatra", "~> 4.2"
+gem "sinatra-cross_origin", "~> 0.3.1"
+gem "rackup", "~> 2.2"
+gem "puma", "~> 7.1"
