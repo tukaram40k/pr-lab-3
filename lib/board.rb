@@ -66,7 +66,25 @@ class Board
   end
 
   def look(player_id)
-
+    output = +"#{@rows}x#{@columns}\n"
+    @cards.each do |row|
+      row.each do |c|
+        if c[:state] == 'removed'
+          output << "none\n"
+        else
+          if c[:owner] == player_id
+            output << "my #{c[:value]}\n"
+          else
+            if c[:state] == 'down'
+              output << "down\n"
+            else
+              output << "up #{c[:value]}\n"
+            end
+          end
+        end
+      end
+    end
+    output
   end
 
   def flip(player_id, row, column)
@@ -81,5 +99,9 @@ class Board
   end
 end
 
-b = Board.parse_from_file(File.expand_path('../boards/zoom.txt', File.dirname(__FILE__)))
-puts b
+# b = Board.parse_from_file(File.expand_path('../boards/zoom.txt', File.dirname(__FILE__)))
+# puts b
+# b.cards[0][0][:owner] = 'e'
+# b.cards[0][1][:state] = 'removed'
+# b.cards[1][0][:state] = 'up'
+# puts b.look('e')
