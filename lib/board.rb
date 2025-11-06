@@ -88,10 +88,19 @@ class Board
   end
 
   def flip(player_id, row, column)
+    current_card = @cards[row][column]
+    current_state = current_card[:state]
+    current_owner = current_card[:owner]
 
+    if current_state == 'down' and current_owner == nil
+      @cards[row][column][:state] = 'up'
+      @cards[row][column][:owner] = player_id
+    end
+
+    look(player_id)
   end
 
-  # cast board to string
+  # for debug only
   def to_s
     output = +"#{@rows}x#{@columns}\n"
     @cards.each { |row| output << row.map { |c| c[:value] }.join(' ') << "\n" }
@@ -105,3 +114,8 @@ end
 # b.cards[0][1][:state] = 'removed'
 # b.cards[1][0][:state] = 'up'
 # puts b.look('e')
+# puts '----------'
+# b.flip('e', 1, 0) # up
+# b.flip('e', 3, 0) # down
+# b.flip('r', 3, 0) # down
+# puts b.flip('e', 0, 1) # removed
