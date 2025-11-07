@@ -3,18 +3,15 @@ require 'sinatra/cross_origin'
 require 'json'
 require_relative 'lib/board'
 require_relative 'lib/commands'
+require_relative 'lib/server_logger'
 
 # Command-line usage:
-#   ruby server.rb PORT FILENAME
-#
-# Example:
-#   ruby server.rb 0 boards/hearts.txt
+#   bundler exec ruby main.rb PORT FILENAME
 #
 # If PORT = 0, a random available port will be chosen.
 
-# --- Argument parsing ---
 if ARGV.length < 2
-  abort "Usage: ruby server.rb PORT FILENAME"
+  abort "Usage: bundler exec ruby main.rb PORT FILENAME"
 end
 
 port = ARGV[0].to_i
@@ -22,10 +19,11 @@ filename = ARGV[1]
 abort 'Invalid port' if port < 0
 abort 'Missing board file' unless File.exist?(filename)
 
-# --- Board loading ---
 board = Board.parse_from_file(filename)
 
-# --- Sinatra config ---
+logger = ServerLogger.new(File.expand_path('logs/', File.dirname(__FILE__)))
+logger.log_board(board.to_s)
+
 set :port, port
 set :environment, :production
 set :bind, '0.0.0.0'
@@ -38,18 +36,24 @@ before do
   response.headers['Access-Control-Allow-Origin'] = '*'
 end
 
-# --- Routes ---
-
 # GET /look/:player_id
 # Returns the board state from player’s perspective.
 get '/look/:player_id' do
   player_id = params[:player_id]
   halt 400, 'missing player_id' unless player_id && !player_id.empty?
 
-  board_state = look(board, player_id)
-  content_type 'text/plain'
-  status 200
-  body board_state
+  logger.log_look(player_id)
+
+  begin
+    board_state = look(board, player_id)
+    content_type 'text/plain'
+    status 200
+    body board_state
+  rescue => e
+    status 409
+    content_type 'text/plain'
+    body "cannot look at the board: #{e.message}"
+  end
 end
 
 # GET /flip/:player_id/:row,:column
@@ -60,6 +64,7 @@ get '/flip/:player_id/:location' do
   halt 400, 'missing player_id or location' unless player_id && location
 
   row, column = location.split(',').map(&:to_i)
+  logger.log_flip(player_id, row, column)
 
   begin
     board_state = flip(board, player_id, row, column)
