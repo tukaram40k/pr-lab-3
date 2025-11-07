@@ -1,9 +1,11 @@
-require_relative 'board'
+require_relative 'board_operations'
 
 #
 # String-based commands provided by the Memory Scramble game.
 # These are required functions. Do not change names or signatures.
 #
+
+BOARD_OPERATIONS = BoardOperations.new
 
 #
 # Looks at the current state of the board.
@@ -13,8 +15,8 @@ require_relative 'board'
 # @return [String] state of board from player’s perspective
 #
 def look(board, player_id)
-  raise 'look function not implemented'
   # Implement with glue code only, at most three lines
+  BOARD_OPERATIONS.look(board, player_id)
 end
 
 #
@@ -28,8 +30,8 @@ end
 # @raise [RuntimeError] if flip operation fails
 #
 def flip(board, player_id, row, column)
-  raise 'flip function not implemented'
   # Implement with glue code only, at most three lines
+  BOARD_OPERATIONS.flip(board, player_id, row, column)
 end
 
 #
@@ -42,8 +44,8 @@ end
 # @return [String] board state after replacement
 #
 def map(board, player_id, &f)
-  raise 'map function not implemented'
   # Implement with glue code only, at most three lines
+  BOARD_OPERATIONS.map(board, player_id, &f)
 end
 
 #
@@ -54,6 +56,6 @@ end
 # @return [String] updated state of board from player’s perspective
 #
 def watch(board, player_id)
-  raise 'watch function not implemented'
   # Implement with glue code only, at most three lines
+  BOARD_OPERATIONS.watch(board, player_id)
 end
