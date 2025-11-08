@@ -1,4 +1,4 @@
-require_relative 'board_operations'
+require_relative 'board/board_operations'
 
 #
 # String-based commands provided by the Memory Scramble game.

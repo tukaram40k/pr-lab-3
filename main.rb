@@ -1,9 +1,9 @@
 require 'sinatra'
 require 'sinatra/cross_origin'
-require_relative 'lib/board'
+require_relative 'lib/board/board'
 require_relative 'lib/commands'
-require_relative 'lib/server_logger'
-require_relative 'lib/request_queue'
+require_relative 'lib/controllers/server_logger'
+require_relative 'lib/controllers/request_queue'
 
 # Command-line usage:
 #   bundler exec ruby main.rb PORT FILENAME

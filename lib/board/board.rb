@@ -1,5 +1,3 @@
-require 'thread'
-
 class Board
   attr_accessor :rows, :columns, :cards, :queue
 
