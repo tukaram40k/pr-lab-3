@@ -1,7 +1,7 @@
 require 'thread'
 
 class Board
-  attr_accessor :rows, :columns, :cards
+  attr_accessor :rows, :columns, :cards, :queue
 
   # Abstraction function:
   #   TODO
@@ -59,7 +59,7 @@ class Board
     raise "wrong card number in txt" unless lines.length == rows * columns
 
     cards = lines.each_slice(columns).map do |slice|
-      slice.map { |v| { value: v.dup, state: 'down', owner: nil } }
+      slice.map { |v| { value: v.dup, state: 'down', owner: nil, matched_by: nil, pending_conceal_by: nil } }
     end
 
     Board.new(rows, columns, cards)

@@ -21,12 +21,13 @@ abort 'Missing board file' unless File.exist?(filename)
 
 board = Board.parse_from_file(filename)
 queue = RequestQueue.new
+board.queue = queue
 
 logger = ServerLogger.new(File.expand_path('logs/', File.dirname(__FILE__)))
 logger.log_board(board.to_s)
 
 set :port, port
-set :environment, :production
+# set :environment, :production
 set :bind, '0.0.0.0'
 
 configure do
@@ -85,6 +86,9 @@ get '/flip/:player_id/:location' do
   end
 end
 
+get '/' do
+  send_file 'public/index.html'
+end
 
 # GET /replace/:player_id/:from_card/:to_card
 # Replaces all from_card with to_card on board.
