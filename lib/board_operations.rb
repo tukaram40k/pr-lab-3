@@ -1,4 +1,12 @@
-class WaitForCard < StandardError; end
+class WaitForCard < StandardError
+  attr_reader :card_key
+
+  def initialize(row, column, owner)
+    super("card at #{row},#{column} controlled by #{owner}")
+    @card_key = "#{row},#{column}"
+  end
+end
+
 class GameError < StandardError; end
 
 class BoardOperations
@@ -62,7 +70,7 @@ class BoardOperations
         card[:owner] = player_id
       elsif card[:owner] != player_id
         # 1-D
-        raise WaitForCard, "card at #{row},#{column} controlled by #{card[:owner]}"
+        raise WaitForCard.new(row, column, card[:owner])
       end
     else
       raise GameError, "invalid state #{card[:state]}"
