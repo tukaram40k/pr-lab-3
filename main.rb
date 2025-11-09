@@ -102,7 +102,7 @@ get '/replace/:player_id/:from_card/:to_card' do
   if result.is_a?(Exception)
     status 409
     content_type 'text/plain'
-    body "cannot flip this card: #{result.message}"
+    body "cannot map cards: #{result.message}"
   else
     content_type 'text/plain'
     status 200
@@ -113,13 +113,22 @@ end
 # GET /watch/:player_id
 # Waits until board changes, then returns new board state.
 get '/watch/:player_id' do
-  # player_id = params[:player_id]
-  # halt 400, 'missing player_id' unless player_id && !player_id.empty?
-  #
-  # board_state = watch(board, player_id)
-  # content_type 'text/plain'
-  # status 200
-  # body board_state
+  player_id = params[:player_id]
+  halt 400, 'missing player_id' unless player_id && !player_id.empty?
+
+  result = queue.watch do
+    watch(board, player_id)
+  end
+
+  if result.is_a?(Exception)
+    status 409
+    content_type 'text/plain'
+    body "watch failed: #{result.message}"
+  else
+    content_type 'text/plain'
+    status 200
+    body result
+  end
 end
 
 set :public_folder, File.join(File.dirname(__FILE__), 'public')

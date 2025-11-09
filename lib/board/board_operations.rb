@@ -126,6 +126,6 @@ class BoardOperations
   end
 
   def watch(board, player_id)
-
+    look(board, player_id)
   end
 end

@@ -4,12 +4,19 @@ class RequestQueue
   def initialize
     @queue = Queue.new
     @waiting_queue = Queue.new
+    @watching_queue = Queue.new
     @worker_thread = Thread.new { process_requests }
   end
 
   def enqueue(&block)
     result = Queue.new
     @queue << [block, result]
+    result.pop
+  end
+
+  def watch(&block)
+    result = Queue.new
+    @watching_queue << [block, result]
     result.pop
   end
 
@@ -23,6 +30,7 @@ class RequestQueue
         result << output
         # if successful request
         pop_one_waiting_request
+        update_watchers
       rescue WaitForCard => e
         # if waiting for card
         @waiting_queue << [block, result]
@@ -39,5 +47,10 @@ class RequestQueue
   def pop_one_waiting_request
     return if @waiting_queue.empty?
     @queue << @waiting_queue.pop(true) rescue ThreadError
+  end
+
+  def update_watchers
+    return if @watching_queue.empty?
+    @queue << @watching_queue.pop(true) rescue ThreadError
   end
 end
