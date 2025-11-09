@@ -109,12 +109,20 @@ class BoardOperations
     end
   end
 
+  def map(board, player_id, from_card, to_card)
+    # can be async
+    board.cards.flatten.each do |c|
+      c[:mask] = to_card if c[:value] == from_card
+      # sleep(1)
+    end
 
+    board.queue.enqueue do
+      board.cards.flatten.each do |c|
+        c[:value] = c[:mask]
+      end
+    end
 
-
-
-  def map(board, player_id, &f)
-
+    look(board, player_id)
   end
 
   def watch(board, player_id)

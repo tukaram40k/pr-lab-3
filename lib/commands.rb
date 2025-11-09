@@ -43,9 +43,9 @@ end
 # @param f [Proc] function from card -> new card
 # @return [String] board state after replacement
 #
-def map(board, player_id, &f)
+def map(board, player_id, from_card, to_card)
   # Implement with glue code only, at most three lines
-  BOARD_OPERATIONS.map(board, player_id, &f)
+  BOARD_OPERATIONS.map(board, player_id, from_card, to_card)
 end
 
 #

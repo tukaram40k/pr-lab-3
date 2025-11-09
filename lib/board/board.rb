@@ -57,7 +57,14 @@ class Board
     raise "wrong card number in txt" unless lines.length == rows * columns
 
     cards = lines.each_slice(columns).map do |slice|
-      slice.map { |v| { value: v.dup, state: 'down', owner: nil, matched_by: nil, pending_conceal_by: nil } }
+      slice.map do |v|
+        { value: v.dup,
+          state: 'down',
+          owner: nil,
+          matched_by: nil,
+          pending_conceal_by: nil,
+          mask: v.dup }
+        end
     end
 
     Board.new(rows, columns, cards)

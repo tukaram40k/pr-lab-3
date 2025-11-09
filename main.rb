@@ -27,7 +27,6 @@ logger = ServerLogger.new(File.expand_path('logs/', File.dirname(__FILE__)))
 logger.log_board(board.to_s)
 
 set :port, port
-# set :environment, :production
 set :bind, '0.0.0.0'
 
 configure do
@@ -93,18 +92,22 @@ end
 # GET /replace/:player_id/:from_card/:to_card
 # Replaces all from_card with to_card on board.
 get '/replace/:player_id/:from_card/:to_card' do
-  # player_id = params[:player_id]
-  # from_card = params[:from_card]
-  # to_card = params[:to_card]
-  # halt 400, 'missing params' unless [player_id, from_card, to_card].all? { |v| v && !v.empty? }
-  #
-  # board_state = map(board, player_id) do |card|
-  #   card == from_card ? to_card : card
-  # end
-  #
-  # content_type 'text/plain'
-  # status 200
-  # body board_state
+  player_id = params[:player_id]
+  from_card = params[:from_card]
+  to_card = params[:to_card]
+  halt 400, 'missing params' unless [player_id, from_card, to_card].all? { |v| v && !v.empty? }
+
+  result = map(board, player_id, from_card, to_card)
+
+  if result.is_a?(Exception)
+    status 409
+    content_type 'text/plain'
+    body "cannot flip this card: #{result.message}"
+  else
+    content_type 'text/plain'
+    status 200
+    body result
+  end
 end
 
 # GET /watch/:player_id
