@@ -1,0 +1,6 @@
+services:
+  ruby-server:
+    build: .
+    ports:
+      - "4567:4567"
+    command: ["bundler", "exec", "ruby", "main.rb", "4567", "boards/ab.txt"]
