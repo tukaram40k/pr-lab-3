@@ -54,4 +54,22 @@ class ServerLogger
       end
     end
   end
+
+  def log_map(player_id, from_card, to_card)
+    @mutex.synchronize do
+      File.open(@path, 'a') do |log_file|
+        timestamp = Time.now.strftime("[%Y-%m-%d %H:%M:%S]")
+        log_file.puts "#{timestamp} player '#{player_id}' made a map request from #{from_card} to #{to_card}."
+      end
+    end
+  end
+
+  def log_watch(player_id)
+    @mutex.synchronize do
+      File.open(@path, 'a') do |log_file|
+        timestamp = Time.now.strftime("[%Y-%m-%d %H:%M:%S]")
+        log_file.puts "#{timestamp} player '#{player_id}' made a watch request."
+      end
+    end
+  end
 end

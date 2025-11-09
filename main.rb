@@ -97,6 +97,7 @@ get '/replace/:player_id/:from_card/:to_card' do
   to_card = params[:to_card]
   halt 400, 'missing params' unless [player_id, from_card, to_card].all? { |v| v && !v.empty? }
 
+  logger.log_map(player_id, from_card, to_card)
   result = map(board, player_id, from_card, to_card)
 
   if result.is_a?(Exception)
@@ -116,6 +117,7 @@ get '/watch/:player_id' do
   player_id = params[:player_id]
   halt 400, 'missing player_id' unless player_id && !player_id.empty?
 
+  logger.log_watch(player_id)
   result = queue.watch do
     watch(board, player_id)
   end
