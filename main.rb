@@ -45,7 +45,7 @@ get '/look/:player_id' do
 
   logger.log_look(player_id)
 
-  result = queue.enqueue do
+  result = queue.enqueue_look do
     look(board, player_id)
   end
 
@@ -70,7 +70,7 @@ get '/flip/:player_id/:location' do
   row, column = location.split(',').map(&:to_i)
   logger.log_flip(player_id, row, column)
 
-  result = queue.enqueue do
+  result = queue.enqueue_flip do
     flip(board, player_id, row, column)
   end
 

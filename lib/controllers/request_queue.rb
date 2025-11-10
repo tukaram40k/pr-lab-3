@@ -8,15 +8,21 @@ class RequestQueue
     @worker_thread = Thread.new { process_requests }
   end
 
-  def enqueue(&block)
+  def enqueue_look(&block)
     result = Queue.new
-    @queue << [block, result]
+    @queue << [block, result, 'look']
+    result.pop
+  end
+
+  def enqueue_flip(&block)
+    result = Queue.new
+    @queue << [block, result, 'flip']
     result.pop
   end
 
   def watch(&block)
     result = Queue.new
-    @watching_queue << [block, result]
+    @watching_queue << [block, result, 'watch']
     result.pop
   end
 
@@ -24,17 +30,19 @@ class RequestQueue
 
   def process_requests
     loop do
-      block, result = next_request
+      block, result, request_type = next_request
       begin
         output = block.call
         result << output
-        # if successful request
-        pop_one_waiting_request
-        update_watchers
+        # if successful flip
+        update_all_watchers if request_type == 'flip'
+        pop_one_waiting_request if request_type == 'flip'
       rescue WaitForCard => e
         # if waiting for card
-        @waiting_queue << [block, result]
+        update_all_watchers
+        @waiting_queue << [block, result, request_type]
       rescue => e
+        update_all_watchers
         result << e
       end
     end
@@ -49,8 +57,10 @@ class RequestQueue
     @queue << @waiting_queue.pop(true) rescue ThreadError
   end
 
-  def update_watchers
+  def update_all_watchers
     return if @watching_queue.empty?
-    @queue << @watching_queue.pop(true) rescue ThreadError
+    until @watching_queue.empty?
+      @queue << @watching_queue.pop(true) rescue ThreadError
+    end
   end
 end

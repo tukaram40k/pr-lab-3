@@ -116,7 +116,7 @@ class BoardOperations
       # sleep(1)
     end
 
-    board.queue.enqueue do
+    board.queue.enqueue_look do
       board.cards.flatten.each do |c|
         c[:value] = c[:mask]
       end
