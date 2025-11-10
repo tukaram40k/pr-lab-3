@@ -20,7 +20,7 @@ class RequestQueue
     result.pop
   end
 
-  def watch(&block)
+  def enqueue_watch(&block)
     result = Queue.new
     @watching_queue << [block, result, 'watch']
     result.pop
@@ -39,7 +39,6 @@ class RequestQueue
         pop_one_waiting_request if request_type == 'flip'
       rescue WaitForCard => e
         # if waiting for card
-        update_all_watchers
         @waiting_queue << [block, result, request_type]
       rescue => e
         update_all_watchers
@@ -58,9 +57,8 @@ class RequestQueue
   end
 
   def update_all_watchers
-    return if @watching_queue.empty?
     until @watching_queue.empty?
-      @queue << @watching_queue.pop(true) rescue ThreadError
+      @queue << @watching_queue.pop(true)
     end
   end
 end

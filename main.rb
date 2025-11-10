@@ -118,7 +118,10 @@ get '/watch/:player_id' do
   halt 400, 'missing player_id' unless player_id && !player_id.empty?
 
   logger.log_watch(player_id)
-  result = queue.watch do
+  # result = queue.watch do
+  #   watch(board, player_id)
+  # end
+  result = queue.enqueue_watch do
     watch(board, player_id)
   end
 
