@@ -1,6 +1,12 @@
 require 'thread'
 
 class RequestQueue
+  #
+  # game queue class
+  # - has a global queue that processes active requests
+  # - has a waiting queue that schedules waiting requests
+  # - has a watching queue that schedules updates for watching players
+  #
   def initialize
     @queue = Queue.new
     @waiting_queue = Queue.new

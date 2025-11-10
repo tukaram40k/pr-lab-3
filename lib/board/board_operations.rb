@@ -1,6 +1,13 @@
 require_relative 'board_utils'
 
 class BoardOperations
+  #
+  # Looks at the current state of the board.
+  #
+  # @param board [Board] game board
+  # @param player_id [String] player identifier
+  # @return [String] state of board from player’s perspective
+  #
   def look(board, player_id)
     rows = board.rows
     columns = board.columns
@@ -20,9 +27,21 @@ class BoardOperations
         end
       end
     end
+    board.check_rep
     output
   end
 
+  #
+  # Tries to flip a card on the board, following game rules.
+  #
+  # @param board [Board]
+  # @param player_id [String]
+  # @param row [Integer]
+  # @param column [Integer]
+  # @return [String] board state after flip
+  # @raise [GameError] if flip operation fails
+  # @raise [WaitForCard] if chosen card is controlled by another player
+  #
   def flip(board, player_id, row, column)
     check_bounds(board, row, column)
     card = board.cards[row][column]
@@ -41,10 +60,62 @@ class BoardOperations
       handle_first_flip(board, player_id, card, row, column)
     end
 
+    board.check_rep
     look(board, player_id)
   end
 
-  # transitions
+  #
+  # Modifies the board by replacing each card with f(card),
+  # without affecting other game state.
+  #
+  # @param board [Board]
+  # @param player_id [String]
+  # @param from_card [String] card to replace
+  # @param to_card [String] card to replace with
+  # @return [String] board state after replacement
+  #
+  def map(board, player_id, from_card, to_card)
+    # can be async
+    board.cards.flatten.each do |c|
+      c[:mask] = to_card if c[:value] == from_card
+      # sleep(1)
+    end
+
+    board.queue.enqueue_look do
+      board.cards.flatten.each do |c|
+        c[:value] = c[:mask]
+      end
+    end
+
+    board.check_rep
+    look(board, player_id)
+  end
+
+  #
+  # Watches for board changes, then returns the new board state.
+  #
+  # @param board [Board]
+  # @param player_id [String]
+  # @return [String] updated state of board from player’s perspective
+  #
+  def watch(board, player_id)
+    look(board, player_id)
+  end
+
+  #
+  # transition functions for the flip operation
+  #
+
+  #
+  # helper method to process a player's first move according to the rules
+  # @param board [Board]
+  # @param player_id [String]
+  # @param card [Hash]
+  # @param row [Integer]
+  # @param column [Integer]
+  # @raise [GameError] if flip operation fails
+  # @raise [WaitForCard] if chosen card is controlled by another player
+  #
   def handle_first_flip(board, player_id, card, row, column)
     raise GameError, 'no card at that location' if removed?(card)
 
@@ -66,6 +137,17 @@ class BoardOperations
     end
   end
 
+  #
+  # helper method to process a player's second move according to the rules
+  # @param board [Board]
+  # @param player_id [String]
+  # @param card [Hash]
+  # @param row [Integer]
+  # @param column [Integer]
+  # @param first_info [Hash] first card controlled by the current player
+  # @raise [GameError] if flip operation fails
+  # @raise [WaitForCard] if chosen card is controlled by another player
+  #
   def handle_second_flip(board, player_id, card, row, column, first_info)
     first_card = first_info[:card]
 
@@ -94,6 +176,12 @@ class BoardOperations
     end
   end
 
+  #
+  # finishes previous round before making new first flip
+  # @param board [Board]
+  # @param player_id [String]
+  # @return void
+  #
   def finalize_previous_play(board, player_id)
     # 3-A and 3-B
     board.cards.flatten.each do |c|
@@ -107,25 +195,5 @@ class BoardOperations
         c[:pending_conceal_by] = nil
       end
     end
-  end
-
-  def map(board, player_id, from_card, to_card)
-    # can be async
-    board.cards.flatten.each do |c|
-      c[:mask] = to_card if c[:value] == from_card
-      # sleep(1)
-    end
-
-    board.queue.enqueue_look do
-      board.cards.flatten.each do |c|
-        c[:value] = c[:mask]
-      end
-    end
-
-    look(board, player_id)
-  end
-
-  def watch(board, player_id)
-    look(board, player_id)
   end
 end

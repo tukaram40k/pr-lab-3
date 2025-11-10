@@ -27,7 +27,8 @@ end
 # @param row [Integer]
 # @param column [Integer]
 # @return [String] board state after flip
-# @raise [RuntimeError] if flip operation fails
+# @raise [GameError] if flip operation fails
+# @raise [WaitForCard] if chosen card is controlled by another player
 #
 def flip(board, player_id, row, column)
   # Implement with glue code only, at most three lines
@@ -40,7 +41,8 @@ end
 #
 # @param board [Board]
 # @param player_id [String]
-# @param f [Proc] function from card -> new card
+# @param from_card [String] card to replace
+# @param to_card [String] card to replace with
 # @return [String] board state after replacement
 #
 def map(board, player_id, from_card, to_card)

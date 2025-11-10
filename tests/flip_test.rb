@@ -5,7 +5,7 @@ require_relative '../lib/board/board_utils'
 
 class GameError < StandardError; end
 class WaitForCard < StandardError
-  attr_reader :bop, :row, :column, :owner
+  attr_reader :row, :column, :owner
   def initialize(row, column, owner)
     @row = row
     @column = column
@@ -21,6 +21,23 @@ class MockBoard
     @rows = rows
     @columns = columns
     @cards = cards
+  end
+
+  def check_rep
+    raise 'rows must be > 0' unless @rows.is_a?(Integer) && @rows > 0
+    raise 'columns must be > 0' unless @columns.is_a?(Integer) && @columns > 0
+    raise 'cards dont match rows' unless @cards.length == @rows
+    @cards.each do |row|
+      raise 'cards dont match columns' unless row.length == @columns
+      row.each do |card|
+        raise 'card must be hash' unless card.is_a?(Hash)
+        raise 'missing :value' unless card.key?(:value)
+        raise 'card value must be nonempty string' unless (card[:value].is_a?(String) or card[:value].is_a?(Integer))
+        raise 'missing :state' unless card.key?(:state)
+        raise 'invalid :state' unless card[:state] == 'down' or card[:state] == 'up' or card[:state] == 'removed'
+        raise 'missing :owner' unless card.key?(:owner)
+      end
+    end
   end
 end
 
