@@ -78,10 +78,10 @@ class BoardOperations
     # can be async
     board.cards.flatten.each do |c|
       c[:mask] = to_card if c[:value] == from_card
-      # sleep(1)
+      sleep(0.05)
     end
 
-    board.queue.enqueue_look do
+    board.queue.enqueue_map do
       board.cards.flatten.each do |c|
         c[:value] = c[:mask]
       end
@@ -180,7 +180,6 @@ class BoardOperations
   # finishes previous round before making new first flip
   # @param board [Board]
   # @param player_id [String]
-  # @return void
   #
   def finalize_previous_play(board, player_id)
     # 3-A and 3-B
