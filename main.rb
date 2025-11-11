@@ -19,22 +19,30 @@ filename = ARGV[1]
 abort 'Invalid port' if port < 0
 abort 'Missing board file' unless File.exist?(filename)
 
+# init new board and queue
 board = Board.parse_from_file(filename)
 queue = RequestQueue.new
 board.queue = queue
 
+# init logger
 logger = ServerLogger.new(File.expand_path('logs/', File.dirname(__FILE__)))
 logger.log_board(board.to_s)
 
 set :port, port
 set :bind, '0.0.0.0'
 
+# cors
 configure do
   enable :cross_origin
 end
 
 before do
   response.headers['Access-Control-Allow-Origin'] = '*'
+end
+
+# serve html
+get '/' do
+  send_file 'public/index.html'
 end
 
 # GET /look/:player_id
@@ -83,10 +91,6 @@ get '/flip/:player_id/:location' do
     status 200
     body result
   end
-end
-
-get '/' do
-  send_file 'public/index.html'
 end
 
 # GET /replace/:player_id/:from_card/:to_card
