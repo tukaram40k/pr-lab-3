@@ -3,8 +3,19 @@ require 'fileutils'
 require 'thread'
 
 class ServerLogger
+  #
+  # server logger class
+  # logs every incoming request to file at @path
+  # does not modify the board or any other files
+  # except the file at @path
+  #
+
   attr_accessor :path
 
+  #
+  # create new logger
+  # @param path [String] path to log file
+  #
   def initialize(path)
     if path.nil? or path.to_s.strip.empty?
       raise ArgumentError, "bad logger path: #{path.inspect}"
@@ -27,6 +38,7 @@ class ServerLogger
     end
   end
 
+  # log board state
   def log_board(board_str)
     @mutex.synchronize do
       File.open(@path, 'a') do |log_file|
@@ -37,6 +49,7 @@ class ServerLogger
     end
   end
 
+  # log look request
   def log_look(player_id)
     @mutex.synchronize do
       File.open(@path, 'a') do |log_file|
@@ -46,6 +59,7 @@ class ServerLogger
     end
   end
 
+  # log flip request
   def log_flip(player_id, row, column)
     @mutex.synchronize do
       File.open(@path, 'a') do |log_file|
@@ -55,6 +69,7 @@ class ServerLogger
     end
   end
 
+  # log map request
   def log_map(player_id, from_card, to_card)
     @mutex.synchronize do
       File.open(@path, 'a') do |log_file|
@@ -64,6 +79,7 @@ class ServerLogger
     end
   end
 
+  # log watch request
   def log_watch(player_id)
     @mutex.synchronize do
       File.open(@path, 'a') do |log_file|
